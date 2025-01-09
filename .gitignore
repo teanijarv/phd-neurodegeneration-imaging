@@ -4,4 +4,8 @@ __pycache__/
 **/data/**
 !**/data/*.md
 
+*.afdesign
+*.docx
+*.doc
+*.zip
 *.csv
