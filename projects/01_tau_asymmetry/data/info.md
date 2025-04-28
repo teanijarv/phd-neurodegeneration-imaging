@@ -1,3 +1,1 @@
-### data
-
-- BioFINDER2 dataset accessed on 27/09/2024
+This study is based on BioFINDER2 cohort (https://biofinder.se) and the dataset was accessed on 27/09/2024.
