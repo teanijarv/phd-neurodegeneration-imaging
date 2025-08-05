@@ -57,8 +57,8 @@ def plot_pairwise_comparison(df, x, y, order, comparisons=None, pvals=None, hide
     
     return fig, ax
 
-def plot_regression(df, x, y, covars=[], standardise=True, vars2std='all', ci=95,
-                    ax=None, xlabel=None, ylabel=None, hue=None, title=None, palette=None,
+def plot_regression(df, x, y, covars=[], standardise=True, vars2std='all', ci=95, pval_multiplier=None,
+                    ax=None, xlabel=None, ylabel=None, hue=None, title=None, palette=None, color=None,
                     fig_args=None, scatter_kwargs=None, line_kwargs=None, text_kwargs=None, legend_kwargs=None):
 
     # prepare data and optionally z-score
@@ -83,22 +83,34 @@ def plot_regression(df, x, y, covars=[], standardise=True, vars2std='all', ci=95
     
     # set style
     if scatter_kwargs is None:
-        scatter_kwargs = dict(edgecolor='#494949', color='#9f9f9f', s=30, lw=1, alpha=0.8)
+        scatter_kwargs = dict(edgecolor='#494949', s=30, lw=1, alpha=0.8)
     if line_kwargs is None:
         line_kwargs = dict(color='#494949')
     if text_kwargs is None:
         text_kwargs = dict(fontsize=11, color='#494949')
     if legend_kwargs is None:
         legend_kwargs = dict(loc='center left', bbox_to_anchor=(1, 0.5))
+    if palette is None and color is None:
+        color = '#9f9f9f'
 
     # plot scatter and regression line
     ax_args = dict(ax=ax, data=df, x=x, y=y)
-    sns.scatterplot(**ax_args, **scatter_kwargs, zorder=1, hue=hue, palette=palette)
+    sns.scatterplot(**ax_args, **scatter_kwargs, zorder=1, hue=hue, palette=palette, color=color)
     sns.regplot(**ax_args, **line_kwargs, scatter=False, ci=ci)
 
     # stats text
-    p_text = '< 0.001' if pval < 0.001 else f'= {pval:.3f}'
-    ax.text(0.0225, 0.975, f'β = {b:.3f}\np {p_text}', transform=ax.transAxes, va='top', **text_kwargs)
+    if pval_multiplier: # for manually multiplying the pval (doing bonferroni correction)
+        pval = pval * pval_multiplier
+        if pval < 0.001: ptext = '< 0.001'
+        elif pval > 0.9: ptext = '> 0.900'
+        else: ptext = f'= {pval:.3f}'
+        ax.text(0.0225, 0.975, fr'β = {b:.3f}' + '\np' + r'$_{\mathrm{Bonf}}$ ' + f'{ptext}',
+            transform=ax.transAxes, va='top', **text_kwargs)
+    else:
+        if pval < 0.001: ptext = '< 0.001'
+        elif pval > 0.9: ptext = '> 0.900'
+        else: ptext = f'= {pval:.3f}'
+        ax.text(0.0225, 0.975, f'β = {b:.3f}\np {ptext}', transform=ax.transAxes, va='top', **text_kwargs)
 
     if hue: ax.legend(**legend_kwargs)
     if ylabel: ax.set_ylabel(ylabel)

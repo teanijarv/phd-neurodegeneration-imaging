@@ -308,7 +308,7 @@ def get_dk_rois():
         'temporal_meta': ['entorhinal', 'parahippocampal', 'fusiform', 'Amygdala', 'inferiortemporal', 'middletemporal'],
         # tau Braak stages
         'cho_com_I_II': ['entorhinal'],
-        'cho_com_III_IV': ['parahippocampal', 'parahippocampal', 'fusiform', 'Amygdala', 'inferiortemporal', 'middletemporal'],
+        'cho_com_III_IV': ['parahippocampal', 'fusiform', 'Amygdala', 'inferiortemporal', 'middletemporal'],
         'cho_com_V_VI': ['caudalanteriorcingulate', 'caudalmiddlefrontal', 'cuneus', 'inferiorparietal', 'isthmuscingulate',
                          'lateraloccipital', 'lateralorbitofrontal', 'lingual', 'medialorbitofrontal', 'paracentral',
                          'parsopercularis', 'parstriangularis', 'parsorbitalis', 'pericalcarine', 'postcentral', 'posteriorcingulate',
