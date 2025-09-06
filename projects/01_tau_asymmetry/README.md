@@ -1,6 +1,6 @@
 # Hemispheric asymmetry of tau pathology is related to asymmetric amyloid deposition in Alzheimer’s Disease
 
-**Preprint**: https://doi.org/10.1038/s41467-025-63564-2
+**Published in Nature Communications**: https://doi.org/10.1038/s41467-025-63564-2
 
 ## Authors
 
