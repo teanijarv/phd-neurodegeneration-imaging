@@ -5,6 +5,8 @@ __pycache__/
 !**/data/*.md
 
 wip/
+docs/
+other/
 
 *.afdesign
 *.docx

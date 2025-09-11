@@ -1,8 +1,9 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from enigmatoolbox.utils.parcellation import parcel_to_surface
+# from enigmatoolbox.utils.parcellation import parcel_to_surface
 from brainspace.utils.parcellation import map_to_labels
 from brainspace.datasets import load_parcellation, load_conte69
 from brainspace.plotting import plot_hemispheres
@@ -38,6 +39,63 @@ def assign_val2roi(regions, value, side_prefixes=['L', 'R']):
         roi_dict[ f'{side_prefixes[1]}_{region_key}'] = value
     
     return roi_dict
+
+def map_to_mask(values, mask, fill=0, axis=0):
+    """Assign data to mask. Acquired from ENIGMA toolbox."""
+    if np.issubdtype(values.dtype, np.integer) and not np.isfinite(fill):
+        raise ValueError("Cannot use non-finite 'fill' with integer arrays.")
+
+    if values.ndim == 1:
+        axis = 0
+
+    values2d = np.atleast_2d(values)
+    n = values2d.shape[axis]
+    mapped = np.full((n, mask.size), fill, dtype=values.dtype)
+    mapped[:, mask] = values2d if axis == 0 else values2d.T
+
+    if values.ndim == 1:
+        return mapped[0]
+    if axis == 1:
+        return mapped.T
+    return mapped
+
+def parcel_to_surface(source_val, target_lab, mask=None, fill=0, source_lab=None):
+    """Map data in source to target according to their labels. Acquired from ENIGMA toolbox."""
+
+    if isinstance(target_lab, str):
+        fname = target_lab + '.csv'
+        # parc_pth = os.path.dirname(os.path.dirname(__file__)) + '/datasets/parcellations/' + fname
+        parc_pth = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'resources')), fname)
+        target_lab = np.loadtxt(parc_pth, dtype=int)
+
+    if source_val.size == 68 and np.unique(target_lab).size == 71:
+        a_idx = list(range(1, 4)) + list(range(5, 39)) + list(range(40, 71))
+        ddk = np.ones(71) * fill
+        ddk[a_idx] = source_val
+        source_val = ddk
+    elif np.max(source_val.size) % 100 == 0 and np.unique(target_lab).size in np.arange(101, 1002, 100):
+        source_val = np.append(0, source_val)
+    elif np.max(source_val.size) % 10 == 0 and np.unique(target_lab).size == 361:
+        source_val = np.append(0, source_val)
+
+    if mask is not None:
+        target_lab2 = target_lab[mask]
+        labs2 = parcel_to_surface(source_val, target_lab2, source_lab=source_lab)
+        return map_to_mask(labs2, mask, fill=fill)
+
+    if source_lab is None:
+        _, idx_tl = np.unique(target_lab, return_inverse=True)
+        return source_val[idx_tl]
+
+    if source_lab.size != source_val.size:
+        raise ValueError('Source values and labels must have same size.')
+
+    uq_sl, idx_sl = np.unique(source_lab, return_inverse=True)
+    if source_lab.size != uq_sl.size:
+        raise ValueError('Source labels must have distinct labels.')
+
+    source_val = source_val[idx_sl]
+    return source_val[target_lab]
 
 def plot_surface(data, atlas, figsize=None, layout_style='row', cmap='viridis', cmap_range=None, cbar=True, 
                  output='notebook', plot_kwargs=None):
